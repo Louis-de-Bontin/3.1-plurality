@@ -1,19 +1,19 @@
-use std::io;
-use std::env;
-use std::process;
+use std::{io, env, process};
 
 
 pub const MAX: usize = 9;
 
+#[derive(Debug)]
 pub struct Candidate {
-    pub name: String,
-    pub votes: u32
+    name: String,
+    votes: u32
 }
 
+
 fn main() {
-    // Makes an array of candidates of length MAX
     let mut candidates: Vec<Candidate> = Vec::new();
-    let mut candidate_count: usize;
+    // Makes an array of candidates of length MAX
+    let candidate_count: usize;
 
     // Put the command line arguments in var
     // and check if there is at least 2 of them
@@ -33,42 +33,55 @@ fn main() {
 
 
     for i in 0..candidate_count {
-        candidates[i].name = args[i + 1].clone();
-        candidates[i].votes = 0;
+        let candidate = Candidate {
+            name: args[i + 1].clone(),
+            votes: 0
+        };
+        candidates.push(candidate);
     }
 
     let voter_count = string_to_int(&input("Number of voters : "));
 
+    #[allow(unused_variables)]
     for i in 0..voter_count {
-        let name = input("Vote : ");
+        let name = input("Vote : ").replace("\n", "");
 
         // Check for invalid vote
-        if !vote(&name) {
+        if !vote(&name, &mut candidates) {
             println!("Invalid vote.");
         }
     }
 
-    print_winner();
+    print_winner(&mut candidates);
 }
 
 
-fn vote(name: &str) -> bool {
-    // TODO
-    // On voit qu'il ne prend pas le vec en paramatre.
-    // Ce qui veut dire que si je veux respecter l'énoncer, je dois trouver
-    // le moyen de declarer `candidates` en variable globale.
+fn vote(name: &str, candidates: &mut Vec<Candidate>) -> bool {
+    for candidate in candidates{
+        // println!("{:?}", candidate.name);
+        // println!("{:?}", name);
+        if candidate.name == name {
+            candidate.votes += 1;
+            return true
+        }
+    }
     false
 }
 
-fn print_winner() {
-    // TODO
-    // Même problématique, `candidates` a besoin d'être en variable globale
-    // Ensuite je n'ai plus qu'à comparer les résultats
-    println!("");
+fn print_winner(candidates: &mut Vec<Candidate>) {
+    let mut best_candidates: Vec<String> = Vec::new();
+    let mut best_score = 0;
+    for candidate in candidates {
+        if candidate.votes >= best_score {
+            best_candidates.push(candidate.name.clone());
+            best_score = candidate.votes;
+        }
+    }
+    for candidate in best_candidates {
+        println!("{}", candidate);
+    }
     process::exit(0)
 }
-
-
 
 
 
